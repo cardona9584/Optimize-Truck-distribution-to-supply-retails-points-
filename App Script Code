@@ -1,0 +1,79 @@
+function evaluatepercentaje(value) {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  var cell = sheet.getRange('H1'); 
+  var goal = cell.getValue();
+  
+  var cell = sheet.getRange('G5'); 
+  cell.setValue(value);
+
+  var cell = sheet.getRange('J5');
+  var f_value = cell.getValue();  
+  
+  if(f_value<goal){
+    return {fun: -1, weigth: f_value};
+  }
+  else if (f_value>goal){
+    return {fun: 1, weigth: f_value}
+  }
+  else 
+    return {fun: 0, weigth: f_value}
+}
+
+
+
+function optimal() {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  var cell = sheet.getRange('H1'); 
+  var goal = cell.getValue();
+  
+  // first range Value 
+  a = 0
+  // second range Value (extreme overinventory)
+  b = 5
+  tolerance = 1
+  prev_f_a= 0
+  prev_f_b= 0
+
+  i = 0
+  max_i = 200
+  while (i<max_i){
+    f_a_funtion = evaluatepercentaje(a)
+    f_a = f_a_funtion.fun
+    f_a_w = f_a_funtion.weigth
+
+    f_b_funtion = evaluatepercentaje(b)
+    f_b = f_b_funtion.fun
+    f_b_w = f_b_funtion.weigth
+
+    if(f_a_w==prev_f_a && f_b_w==prev_f_b){
+      tolerance = tolerance +1
+    }
+    c = (a+b)/2
+    f_c_funtion = evaluatepercentaje(c)
+    f_c = f_c_funtion.fun
+    f_c_w = f_c_funtion.weigth
+
+    if(Math.abs(goal-f_c_w)<=tolerance){
+
+      var cell = sheet.getRange('N6'); 
+      cell.setValue(c);
+      i = 200
+
+    }
+    else if(f_a*f_c<0) {
+      b = c
+      prev_f_a= f_a_w
+      prev_f_b= f_b_w
+    }
+    else{
+      a= c
+      prev_f_a = f_a_w
+      prev_f_b = f_b_w
+    }
+
+    i = i +1
+
+  }
+
+}
+
